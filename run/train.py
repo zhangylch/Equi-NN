@@ -10,6 +10,7 @@ import dataloader.dataloader as dataloader
 import dataloader.cudaloader as cudaloader  
 import src.print_info as print_info
 import src.restart as restart
+import ASE.pes.PES as PES
 import src.scheduler as state_scheduler
 import torch._dynamo
 import logging
@@ -40,6 +41,8 @@ ema_model = AveragedModel(model,avg_fn=ema_avg)
 #define optimizer
 optim=torch.optim.AdamW(model.parameters(), lr=start_lr, weight_decay=re_coeff)
 
+ASE_pes=PES.PES()
+
 state_loader=restart.Restart()
 if table_init==1:
     state_loader(model,"Equi-MPNN.pt")
@@ -55,7 +58,7 @@ jit_lammps=lammps.lammps(atom_species=atom_species,initpot=initpot,max_l=max_l,n
 # learning rate scheduler 
 lr_scheduler=torch.optim.lr_scheduler.ReduceLROnPlateau(optim,factor=decay_factor,patience=patience_epoch,min_lr=end_lr)
 
-scheduler=state_scheduler.Scheduler(end_lr,decay_factor,state_loader,optim,model,ema_model,jit_lammps)
+scheduler=state_scheduler.Scheduler(end_lr,decay_factor,state_loader,optim,model,ema_model,ASE_pes,jit_lammps)
 
 if force_table:
     Vmap_model=vmap(grad_and_value(model),in_dims=(0,0,0,0,0,0),out_dims=(0,0))

@@ -189,12 +189,11 @@ void PairREANN::compute(int eflag, int vflag)
     torch::Tensor atom_index=torch::empty({numneigh_atom,2},torch::dtype(torch::kLong));
     // for getting the index of neigh species list atom for all the local atom
     torch::Tensor neigh_species=torch::empty({numneigh_atom},torch::dtype(torch::kLong));*/
-    auto numlocal = torch::ones({nlocal});
     vector<double> cart(totdim);
     vector<long> neighlist(numneigh_atom);
     vector<long> centerlist(numneigh_atom);
     vector<long> neigh_species(numneigh_atom);
-    vector<long> local_species(numneigh_atom);
+    vector<long> local_species(nlocal);
     vector<long> center_neighlist(numneigh_atom);
     double dx,dy,dz,d2;
     double xtmp,ytmp,ztmp;
@@ -215,7 +214,7 @@ void PairREANN::compute(int eflag, int vflag)
         xtmp = x[i][0];
         ytmp = x[i][1];
         ztmp = x[i][2];
-        center_num=type[i]-1;
+        local_species[ii]=type[i]-1;
         jnum=numneigh[i];
         jlist=firstneigh[i];
         for (jj=0; jj<jnum; ++jj)
@@ -230,7 +229,6 @@ void PairREANN::compute(int eflag, int vflag)
                 centerlist[totneigh]=i;
                 neighlist[totneigh]=j;
                 neigh_species[totneigh]=type[j]-1;
-                local_species[totneigh]=center_num;
                 center_neighlist[totneigh]=atom->map(tag[j]);
                 ++totneigh;
             }

@@ -3,7 +3,7 @@ import numpy as np
 
 # define the strategy of weight decay
 class Scheduler():
-    def __init__(self,end_lr,decay_factor,state_loader,optim,model,ema_model,jit_lammps):
+    def __init__(self,end_lr,decay_factor,state_loader,optim,model,ema_model,ASE_pes,jit_lammps):
         self.best_loss = 1e30
         self.end_lr=end_lr
         self.decay_factor=decay_factor
@@ -11,6 +11,7 @@ class Scheduler():
         self.optim=optim
         self.ema_model=ema_model
         self.model=model
+        self.ASE_pes=ASE_pes
         self.jit_lammps=jit_lammps
     
     def __call__(self,loss):
@@ -27,8 +28,9 @@ class Scheduler():
             if loss<self.best_loss:
                 self.best_loss = loss
                 # save the jit model for inference
-                jit_pes=torch.jit.script(self.ema_model.module)
-                jit_pes.save("inference.pt")
+                self.ASE_pes.model.load_state_dict(self.model.state_dict())
+                jit_pes=torch.jit.script(self.ASE_pes)
+                jit_pes.save("PES.pt")
                 # store the checkpoint at each epoch
                 torch.save(self.ema_model.state_dict(),"ema.pt")
                 torch.save(self.model.state_dict(),"Equi-MPNN.pt")

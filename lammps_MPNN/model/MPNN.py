@@ -43,11 +43,12 @@ class MPNN(torch.nn.Module):
         self.itermod= torch.nn.ModuleDict(itermod)
         self.outnn=MLP.NNMod(1,nblock,nl,dropout_p,Relu_like,initbias=torch.tensor(np.array([initpot])),layernorm=layernorm)
 
-    def forward(self,cart,centerlist,neighlist,local_species,neigh_species,center_neighlist,nlocal):
+    def forward(self,cart,centerlist,neighlist,local_species,neigh_species,center_neighlist):
+        nlocal=local_species.shape[0]
         cart.requires_grad_(True)
         distvec=cart[centerlist]-cart[neighlist]
         distances=torch.linalg.norm(distvec,dim=1)
-        local_coeff=self.emb_centernn(self.atom_species)
+        local_coeff=self.emb_centernn(self.atom_species)[local_species]
         neigh_coeff=self.emb_neighnn(self.atom_species)
         neigh_emb=(neigh_coeff[neigh_species]).T.contiguous()
         cut_distances=self.cutoff_cosine(distances)
@@ -56,7 +57,7 @@ class MPNN(torch.nn.Module):
         contracted_coeff=self.contracted_coeff[:,self.index_l].contiguous()
         sph=self.sph_cal(distvec.T)
         orbital=torch.einsum("i,ji,ji,ki->ikj",cut_distances,radial_func,neigh_emb[:self.nwave],sph)
-        center_orbital=cart.new_zeros((nlocal.shape[0],self.nangular,self.nwave),dtype=cart.dtype,device=cart.device)
+        center_orbital=cart.new_zeros((nlocal,self.nangular,self.nwave),dtype=cart.dtype,device=cart.device)
         center_orbital=torch.index_add(center_orbital,0,centerlist,orbital)
         contracted_orbital=torch.einsum("ikj,kjm->ikm",center_orbital,contracted_coeff[0])
         density=torch.einsum("ikm,ikm,im ->im",contracted_orbital,contracted_orbital,local_coeff)

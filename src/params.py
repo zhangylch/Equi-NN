@@ -21,6 +21,8 @@ final_weight=[1.0, 0.5]
 ema_decay=0.999
 check_epoch=10
 
+atom_species=[1]
+
 #========================parameters for optim=======================
 start_lr=0.01                  # initial learning rate
 end_lr=1e-5                    # final learning rate
@@ -86,7 +88,8 @@ torch.set_default_dtype(torch_dtype)
 
 if not ncontract: ncontract=int(nwave*(nwave+1)/2)
 
-gpu_sel()
+os.system('nvidia-smi -q -d Memory |grep -A4 GPU|grep Used >gpu_info')
+gpu_sel(1)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
