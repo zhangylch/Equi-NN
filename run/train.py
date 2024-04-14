@@ -98,8 +98,8 @@ for iepoch in range(Epoch):
         loss.backward()
         optim.step()   
         loss_prop_train+=loss_prop.detach()
-    # update the EMA parameters
-    ema_model.update_parameters(model)
+        # update the EMA parameters
+        ema_model.update_parameters(model)
 
     #  calculate the val error
     loss_val=torch.zeros(1,dtype=torch_dtype,device=device)

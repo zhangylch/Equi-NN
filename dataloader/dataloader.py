@@ -40,7 +40,7 @@ class Dataloader():
             if force_table:
                 force[i,0:self.numatoms[i],:]=torch.tensor(-force_list[i])
             self.mass[i,0:self.numatoms[i]]=torch.tensor(mass[i])
-            self.center_factor[i,self.numatoms[i]:]=0
+            self.center_factor[i,self.numatoms[i]:]=0.0
 
         if self.shuffle:
             self.shuffle_list=np.random.permutation(self.numpoint)
