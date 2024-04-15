@@ -21,7 +21,8 @@ class MPNN(torch.nn.Module):
         index_l=torch.zeros(self.nangular,dtype=torch.long)
         for l in range(rmaxl):
             index_l[l*l:(l+1)*(l+1)]=l           
-        self.index_l=index_l
+
+        self.register_buffer("index_l",index_l)
 
         initbias=torch.randn(nwave)
         alpha=torch.ones(nwave)

@@ -20,10 +20,12 @@ class MPNN(torch.nn.Module):
 
         self.contracted_coeff=nn.parameter.Parameter(torch.nn.init.xavier_uniform_(torch.randn(iter_loop+1,self.rmaxl,nwave,ncontract)))
 
-        self.index_l=torch.zeros(self.nangular,dtype=torch.long)
+        index_l=torch.zeros(self.nangular,dtype=torch.long)
         for l in range(self.rmaxl):
-            self.index_l[l*l:(l+1)*(l+1)]=l           
+            index_l[l*l:(l+1)*(l+1)]=l           
  
+        self.register_buffer("index_l",index_l)
+
         initbias=torch.randn(nwave)
         alpha=torch.ones(nwave)
         rs=(torch.rand(nwave)*np.sqrt(cutoff))

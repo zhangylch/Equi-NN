@@ -110,9 +110,9 @@ for iepoch in range(Epoch):
         loss_prop_val+=loss_prop.detach()
     loss_prop_train=torch.sqrt(loss_prop_train/ntrain)
     loss_prop_val=torch.sqrt(loss_prop_val/nval)
-    if np.mod(iepoch,check_epoch)==0: scheduler(loss_val)
-
-    print_err(iepoch,lr,loss_prop_train,loss_prop_val)
+    if np.mod(iepoch,check_epoch)==0: 
+        scheduler(loss_val)
+        print_err(iepoch,lr,loss_prop_train,loss_prop_val)
 
     lr_scheduler.step(loss_val)
 

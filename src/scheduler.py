@@ -18,7 +18,7 @@ class Scheduler():
         return self.forward(loss)
  
     def forward(self,loss):
-        if loss>10.0*self.best_loss or loss.isnan():
+        if loss>100.0*self.best_loss or loss.isnan():
             lr=self.optim.param_groups[0]["lr"]
             self.state_loader(self.model,"Equi-MPNN.pt")
             self.state_loader(self.ema_model,"ema.pt")
